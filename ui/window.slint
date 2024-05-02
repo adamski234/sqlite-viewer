@@ -1,0 +1,58 @@
+import { VerticalBox, HorizontalBox, Button, StandardTableView, StandardListView } from "std-widgets.slint";
+export component AppWindow inherits Window {
+    preferred-height: 800px;
+    preferred-width: 800px;
+    title: "SQLite browser";
+
+    in-out property <string> database-path: "";
+    in-out property <[StandardListViewItem]> database-tables;
+    in-out property <bool> has-open-picker;
+    in-out property <[TableColumn]> column-names;
+    in-out property <[[StandardListViewItem]]> table-data;
+
+    callback request-path-change();
+    callback request-change-table(int);
+
+    VerticalBox {
+        HorizontalBox {
+            height: 5%;
+
+            Button {
+                text: "Select database";
+                width: 10%;
+                enabled: !root.has-open-picker;
+                clicked => {
+                    root.request-path-change();
+                }
+            }
+
+            Text {
+                wrap: word-wrap;
+                text: "Current database file: " + root.database-path;
+            }
+        }
+
+        HorizontalBox {
+            StandardTableView {
+                width: 70%;
+                columns <=> root.column-names;
+                rows: root.table-data;
+            }
+
+            VerticalBox {
+                padding-top: 0;
+                Text {
+                    text: "Available tables";
+                }
+
+                StandardListView {
+                    width: 30%;
+                    current-item-changed(index) => {
+                        root.request-change-table(index);
+                    }
+                    model: root.database-tables;
+                }
+            }
+        }
+    }
+}
